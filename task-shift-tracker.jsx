@@ -1,5 +1,27 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 
+// Polyfill for window.storage if not present (standard browser environment)
+if (!window.storage) {
+  window.storage = {
+    get: (key) => {
+      try {
+        const value = localStorage.getItem(key);
+        return Promise.resolve({ value });
+      } catch (e) {
+        return Promise.resolve({ value: null });
+      }
+    },
+    set: (key, value) => {
+      try {
+        localStorage.setItem(key, value);
+        return Promise.resolve();
+      } catch (e) {
+        return Promise.reject(e);
+      }
+    }
+  };
+}
+
 const STORAGE_KEY = "task-shift-tracker";
 
 const generateId = () => Math.random().toString(36).substr(2, 9);
